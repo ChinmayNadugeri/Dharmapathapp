@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { HardShadowCard } from '@/features/home/components/HardShadowCard';
 import { HomeColors } from '@/features/home/constants/homeTheme';
 

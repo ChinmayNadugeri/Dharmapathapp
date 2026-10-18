@@ -3,7 +3,6 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withTiming,
-  interpolateColor,
 } from 'react-native-reanimated';
 import { Colors } from '@/shared/constants/theme';
 

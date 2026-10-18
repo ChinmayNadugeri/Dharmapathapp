@@ -17,7 +17,6 @@ export function getFestivalsForDay(panchang: DailyPanchang): FestivalItem[] {
   const activeFestivals: FestivalItem[] = [];
 
   const tithiId = panchang.tithi.id;
-  const paksha = panchang.tithi.paksha;
   const dateStr = panchang.date;
 
   for (const item of festivalsDatabase) {

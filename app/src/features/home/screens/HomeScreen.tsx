@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeroLessonCard } from '../components/HeroLessonCard';
@@ -23,17 +23,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const handleBeginFeatured = () => {
     if (featuredLesson) {
-      // Simulate completing a lesson for real state verification
-      // Tapping this completes it, awards points and logs in console (STUB)
-      console.log(`STUB: Starting lesson: ${featuredLesson.title}`);
-      completeLesson(featuredLesson.id, featuredLesson.pointsAwarded);
+      navigation.navigate('/learning/lesson-runner', { lessonId: featuredLesson.id });
     }
   };
 
   const handleResumeContinue = () => {
     if (continueLesson) {
-      console.log(`STUB: Resuming lesson: ${continueLesson.title}`);
-      completeLesson(continueLesson.id, continueLesson.pointsAwarded);
+      navigation.navigate('/learning/lesson-runner', { lessonId: continueLesson.id });
     }
   };
 

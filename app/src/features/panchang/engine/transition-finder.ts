@@ -2,7 +2,7 @@
  * Root-finding & Binary Search Solver for Tithi, Nakshatra, and Yoga Transition Times ("Upto" times)
  */
 
-import { computeTithi, computeNakshatra, computeYoga, computeKarana } from './ephemeris-engine';
+import { computeTithi, computeNakshatra, computeYoga } from './ephemeris-engine';
 
 export interface TransitionResult {
   hasTransition: boolean;

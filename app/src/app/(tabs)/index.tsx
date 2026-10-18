@@ -1,4 +1,3 @@
-import React from 'react';
 import { useRouter } from 'expo-router';
 import { HomeScreen } from '@/features/home/screens/HomeScreen';
 

@@ -15,6 +15,7 @@ const STORAGE_KEY = 'dharmapath_progress';
 
 const DEFAULT_PROGRESS: UserProgress = {
   punyaPoints: 0,
+  experiencePoints: 0,
   dayStreak: 0,
   lastActiveDate: '',
   completedLessons: [],
@@ -54,19 +55,13 @@ export function useUserProgress(): UseUserProgressReturn {
       .then((raw) => {
         if (raw) {
           const saved = JSON.parse(raw) as UserProgress;
-          setProgress(saved);
+          setProgress({ ...DEFAULT_PROGRESS, ...saved });
         }
       })
       .catch(() => {
         // Storage unavailable — use defaults silently
       })
       .finally(() => setIsLoading(false));
-  }, []);
-
-  /** Persist the new progress state */
-  const save = useCallback(async (updated: UserProgress): Promise<void> => {
-    setProgress(updated);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   }, []);
 
   /**
@@ -130,13 +125,14 @@ export function useUserProgress(): UseUserProgressReturn {
     async (lessonId: string, pointsAwarded: number): Promise<void> => {
       setProgress((prev) => {
         const alreadyDone = prev.completedLessons.includes(lessonId);
-        let updated: UserProgress = alreadyDone
-          ? prev
-          : {
-              ...prev,
-              completedLessons: [...prev.completedLessons, lessonId],
-              punyaPoints: prev.punyaPoints + pointsAwarded,
-            };
+        if (alreadyDone) return prev;
+
+        let updated: UserProgress = {
+          ...prev,
+          completedLessons: [...prev.completedLessons, lessonId],
+          punyaPoints: prev.punyaPoints + pointsAwarded,
+          experiencePoints: prev.experiencePoints + pointsAwarded,
+        };
 
         updated = incrementStreakIfNewDay(updated);
         updated = checkAndUnlockBadges(updated);

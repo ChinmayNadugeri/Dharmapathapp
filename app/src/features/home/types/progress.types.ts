@@ -1,5 +1,6 @@
 export interface UserProgress {
   punyaPoints: number;
+  experiencePoints: number;
   dayStreak: number;
   /** ISO date string YYYY-MM-DD of last active session */
   lastActiveDate: string;
