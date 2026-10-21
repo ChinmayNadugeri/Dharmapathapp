@@ -12,6 +12,11 @@ export interface MCQQuestion {
   options: string[];
   correctIndex: number;
   explanation: string;
+  /** Concept this question tests; engine falls back to the lesson id. */
+  conceptId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  /** Progressive hints, shown one at a time. */
+  hints?: string[];
 }
 
 export interface FillBlankQuestion {
@@ -20,6 +25,11 @@ export interface FillBlankQuestion {
   question: string;
   acceptedAnswers: string[];
   explanation: string;
+  /** Concept this question tests; engine falls back to the lesson id. */
+  conceptId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  /** Progressive hints, shown one at a time. */
+  hints?: string[];
 }
 
 export interface MatchPair {
@@ -32,6 +42,11 @@ export interface MatchQuestion {
   type: 'match';
   pairs: MatchPair[];
   explanation: string;
+  /** Concept this question tests; engine falls back to the lesson id. */
+  conceptId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  /** Progressive hints, shown one at a time. */
+  hints?: string[];
 }
 
 export type QuizQuestion = MCQQuestion | FillBlankQuestion | MatchQuestion;
