@@ -20,9 +20,14 @@ import type { FestivalCardData } from '@/features/panchang/types/panchang-screen
 interface FestivalCardMiniProps {
   festival: FestivalCardData;
   onPress: (festival: FestivalCardData) => void;
+  onLearnPress?: (festival: FestivalCardData) => void;
 }
 
-export const FestivalCardMini: React.FC<FestivalCardMiniProps> = ({ festival, onPress }) => {
+export const FestivalCardMini: React.FC<FestivalCardMiniProps> = ({
+  festival,
+  onPress,
+  onLearnPress,
+}) => {
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
@@ -65,19 +70,41 @@ export const FestivalCardMini: React.FC<FestivalCardMiniProps> = ({ festival, on
           <Text style={styles.infoTithi}>{festival.tithiLabel}</Text>
           <Text style={styles.infoDesc}>{festival.shortDescription}</Text>
 
-          {/* Lesson status pill */}
-          <LinearGradient
-            colors={PanchangGradients.lessonPill}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-            style={styles.lessonPill}
-          >
-            <Text style={styles.lessonPillText}>
-              {festival.hasLesson
-                ? PanchangStrings.lessonAvailable
-                : PanchangStrings.lessonComingSoon}
-            </Text>
-          </LinearGradient>
+          {/* Lesson status pill — clickable when lesson is available */}
+          {festival.hasLesson && onLearnPress ? (
+            <Pressable
+              onPress={(e) => {
+                e.stopPropagation?.();
+                onLearnPress(festival);
+              }}
+              accessibilityLabel={`Learn lesson for ${festival.shortName}`}
+              accessibilityRole="button"
+            >
+              <LinearGradient
+                colors={PanchangGradients.lessonPill}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.lessonPill}
+              >
+                <Text style={styles.lessonPillText}>
+                  {PanchangStrings.lessonAvailable}
+                </Text>
+              </LinearGradient>
+            </Pressable>
+          ) : (
+            <LinearGradient
+              colors={PanchangGradients.lessonPill}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.lessonPill}
+            >
+              <Text style={styles.lessonPillText}>
+                {festival.hasLesson
+                  ? PanchangStrings.lessonAvailable
+                  : PanchangStrings.lessonComingSoon}
+              </Text>
+            </LinearGradient>
+          )}
         </View>
       </View>
     </Pressable>

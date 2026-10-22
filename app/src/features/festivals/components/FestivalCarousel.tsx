@@ -14,14 +14,23 @@ import type { FestivalCardData } from '@/features/panchang/types/panchang-screen
 interface FestivalCarouselProps {
   festivals: FestivalCardData[];
   onCardPress: (festival: FestivalCardData) => void;
+  onLearnPress?: (festival: FestivalCardData) => void;
 }
 
-export const FestivalCarousel: React.FC<FestivalCarouselProps> = ({ festivals, onCardPress }) => {
+export const FestivalCarousel: React.FC<FestivalCarouselProps> = ({
+  festivals,
+  onCardPress,
+  onLearnPress,
+}) => {
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<FestivalCardData>) => (
-      <FestivalCardMini festival={item} onPress={onCardPress} />
+      <FestivalCardMini
+        festival={item}
+        onPress={onCardPress}
+        onLearnPress={onLearnPress}
+      />
     ),
-    [onCardPress]
+    [onCardPress, onLearnPress]
   );
 
   const keyExtractor = useCallback(

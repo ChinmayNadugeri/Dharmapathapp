@@ -154,6 +154,7 @@ export const PanchangFestivalsScreen: React.FC = () => {
               <FestivalCarousel
                 festivals={festivalCarouselData}
                 onCardPress={handleCardPress}
+                onLearnPress={handleLearnPress}
               />
               <FeaturedTimingBanner />
             </Animated.ScrollView>
