@@ -6,11 +6,14 @@ import { SubTabSwitcher, type LearningTabType } from '../components/SubTabSwitch
 import { MainPathCard } from '../components/MainPathCard';
 import { ScriptureCard } from '../components/ScriptureCard';
 import { PracticeCenter } from '../components/PracticeCenter';
+import { ShlokaRecitationModal } from '@/features/home/components/ShlokaRecitationModal';
 import { useLearnerState } from '../state/useLearnerState';
 import { findWeakConcepts } from '../engine/mastery';
 import { useUserProgress } from '@/features/home/state/useUserProgress';
 import { PATHS_DATA } from '@/features/home/data/pathsData';
 import { SCRIPTURES_DATA } from '@/features/home/data/scripturesData';
+import { getAllScriptures } from '@/features/scriptures/services/scripture-service';
+import type { ShlokaItem } from '@/features/scriptures/types/scripture.types';
 import { HomeColors } from '@/features/home/constants/homeTheme';
 
 export const LearningScreen: React.FC = () => {
@@ -18,9 +21,10 @@ export const LearningScreen: React.FC = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { learnerState } = useLearnerState();
-  const { progress } = useUserProgress();
+  const { progress, completeLesson } = useUserProgress();
 
   const weakConcepts = findWeakConcepts(learnerState.mastery);
+  const [selectedScripture, setSelectedScripture] = useState<ShlokaItem | null>(null);
 
   const handlePathPress = (pathId: string) => {
     router.push({
@@ -30,11 +34,18 @@ export const LearningScreen: React.FC = () => {
   };
 
   const handleScripturePress = (scriptureId: string) => {
-    // Launch Ramayana / Gita lesson for scripture practice
-    router.push({
-      pathname: '/learning/lesson-runner',
-      params: { lessonId: 'lesson_gita_sankhya_yoga' },
-    });
+    const all = getAllScriptures();
+    const match = all.find((item) =>
+      item.id.toLowerCase().includes(scriptureId.toLowerCase()) ||
+      scriptureId.toLowerCase().includes(item.id.toLowerCase())
+    ) || all[0];
+    setSelectedScripture(match);
+  };
+
+  const handleRecitationComplete = (earnedXp: number) => {
+    if (selectedScripture) {
+      completeLesson(`recite_${selectedScripture.id}_${new Date().toDateString()}`, earnedXp);
+    }
   };
 
   const handleStartReview = () => {
@@ -98,6 +109,14 @@ export const LearningScreen: React.FC = () => {
           ))}
         </View>
       )}
+
+      {/* Interactive Scripture Recitation Modal */}
+      <ShlokaRecitationModal
+        visible={!!selectedScripture}
+        shloka={selectedScripture}
+        onClose={() => setSelectedScripture(null)}
+        onComplete={handleRecitationComplete}
+      />
     </ScrollView>
   );
 };

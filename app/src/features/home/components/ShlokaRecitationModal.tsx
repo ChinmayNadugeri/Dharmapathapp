@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import { HomeColors } from '@/features/home/constants/homeTheme';
 import type { ShlokaItem } from '@/features/scriptures/types/scripture.types';
+import { getAllScriptures } from '@/features/scriptures/services/scripture-service';
 import { SoundFeedback } from '@/features/learning/services/soundFeedback';
 
 interface ShlokaRecitationModalProps {
@@ -59,7 +60,9 @@ export const ShlokaRecitationModal: React.FC<ShlokaRecitationModalProps> = ({
           </View>
 
           <Text style={styles.title}>
-            Bhagavad Gita • Chapter {shloka.chapter}, Verse {shloka.verse}
+            {shloka.chapter
+              ? `Bhagavad Gita • Chapter ${shloka.chapter}, Verse ${shloka.verse}`
+              : shloka.title?.english || 'Sacred Scripture Recitation'}
           </Text>
 
           {/* Stepper instructions */}
