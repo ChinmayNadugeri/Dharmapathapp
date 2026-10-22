@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { HomeColors } from '@/features/home/constants/homeTheme';
 import type { Hint } from '../engine/hints';
+import { SoundFeedback } from '../services/soundFeedback';
 
 interface HintButtonProps {
   onPress: () => void;
@@ -20,6 +21,11 @@ export const HintButton: React.FC<HintButtonProps> = ({
 }) => {
   const isMax = hintLevel >= maxLevel;
 
+  const handlePress = () => {
+    SoundFeedback.playHint();
+    onPress();
+  };
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -28,7 +34,7 @@ export const HintButton: React.FC<HintButtonProps> = ({
           hintLevel > 0 && styles.activeButton,
           (disabled || isMax) && styles.disabledButton,
         ]}
-        onPress={onPress}
+        onPress={handlePress}
         disabled={disabled || isMax}
         accessibilityRole="button"
         accessibilityLabel={
