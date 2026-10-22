@@ -53,7 +53,7 @@ export const ProfileScreen: React.FC = () => {
         <Text style={styles.sectionTitle}>DHARMA LEAGUE</Text>
         <View style={styles.sectionLine} />
       </View>
-      <DharmaLeagueCard leagueInfo={leagueInfo} />
+      <DharmaLeagueCard leagueInfo={leagueInfo} userStreakDays={progress.dayStreak} />
 
       {/* BADGES & TROPHIES */}
       <View style={styles.sectionHeader}>
