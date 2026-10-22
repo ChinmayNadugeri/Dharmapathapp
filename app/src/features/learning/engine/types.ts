@@ -5,12 +5,15 @@ export type Difficulty = 'easy' | 'medium' | 'hard';
 export type Answer =
   | { type: 'mcq'; selectedIndex: number }
   | { type: 'fill_blank'; text: string }
-  | { type: 'match'; pairs: { left: string; right: string }[] };
+  | { type: 'match'; pairs: { left: string; right: string }[] }
+  | { type: 'true_false'; selected: boolean }
+  | { type: 'ordering'; order: string[] }
+  | { type: 'flashcard'; selfReportedCorrect: boolean };
 
 export interface Evaluation {
   questionId: string;
   correct: boolean;
-  /** 0..1. Only match questions give partial credit. */
+  /** 0..1. Only match and ordering questions give partial credit. */
   score: number;
   explanation: string;
   /** Shown after evaluation only; never before. */

@@ -1,6 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 import { QUIZ_LESSONS, getQuizLesson } from '../data/quizData';
-import type { FillBlankQuestion, MCQQuestion, MatchQuestion } from '../types/quiz.types';
+import type {
+  FillBlankQuestion,
+  FlashcardQuestion,
+  MCQQuestion,
+  MatchQuestion,
+  OrderingQuestion,
+  TrueFalseQuestion,
+} from '../types/quiz.types';
 import {
   addDays, applyAttempts, createSession, currentQuestion, dueItems, evaluateAnswer, findWeakConcepts,
   getHint, nextDifficulty, normalizeText, recommendNext, scheduleReview, selectQuestions,
@@ -12,6 +19,15 @@ const fill: FillBlankQuestion = { id: 'f', type: 'fill_blank', question: 'q', ac
 const match: MatchQuestion = {
   id: 'x', type: 'match', explanation: 'e',
   pairs: [{ left: 'A', right: '1' }, { left: 'B', right: '2' }, { left: 'C', right: '3' }, { left: 'D', right: '4' }],
+};
+const tf: TrueFalseQuestion = {
+  id: 'tf1', type: 'true_false', statement: 'Rama accepted exile to honour Dasharatha’s promise.', correctAnswer: true, explanation: 'e',
+};
+const ordering: OrderingQuestion = {
+  id: 'ord1', type: 'ordering', instruction: 'Order the numbers', correctOrder: ['One', 'Two', 'Three'], explanation: 'e',
+};
+const flashcard: FlashcardQuestion = {
+  id: 'fc1', type: 'flashcard', front: 'Prompt', back: 'Answer', explanation: 'e',
 };
 
 describe('evaluateAnswer', () => {
@@ -37,6 +53,20 @@ describe('evaluateAnswer', () => {
     expect(ev.correct).toBe(false);
     expect(evaluateAnswer(match, { type: 'match', pairs: match.pairs }).correct).toBe(true);
   });
+  it('grades true_false', () => {
+    expect(evaluateAnswer(tf, { type: 'true_false', selected: true }).correct).toBe(true);
+    expect(evaluateAnswer(tf, { type: 'true_false', selected: false }).correct).toBe(false);
+  });
+  it('grades ordering with partial credit', () => {
+    expect(evaluateAnswer(ordering, { type: 'ordering', order: ['One', 'Two', 'Three'] }).correct).toBe(true);
+    const partial = evaluateAnswer(ordering, { type: 'ordering', order: ['One', 'Three', 'Two'] });
+    expect(partial.correct).toBe(false);
+    expect(partial.score).toBeCloseTo(1 / 3);
+  });
+  it('grades flashcard by learner self-report', () => {
+    expect(evaluateAnswer(flashcard, { type: 'flashcard', selfReportedCorrect: true }).correct).toBe(true);
+    expect(evaluateAnswer(flashcard, { type: 'flashcard', selfReportedCorrect: false }).correct).toBe(false);
+  });
   it('rejects answers of the wrong kind', () => {
     expect(() => evaluateAnswer(mcq, { type: 'fill_blank', text: 'x' })).toThrow(TypeError);
   });
@@ -52,6 +82,12 @@ describe('getHint', () => {
     expect(getHint(fill, 1).text).toContain('9 letters');
     expect(getHint(fill, 9).text).toContain('"L"');
   });
+  it('stages true_false hints', () => {
+    expect(getHint(tf, 1).text).toContain('statement carefully');
+  });
+  it('stages ordering hints', () => {
+    expect(getHint(ordering, 2).text).toContain('The first item is "One"');
+  });
   it('prefers authored hints', () => {
     expect(getHint({ ...mcq, hints: ['think of Kaikeyi'] }, 1).text).toBe('think of Kaikeyi');
   });
@@ -64,11 +100,20 @@ describe('session', () => {
     for (const step of steps) {
       if (step === 'hint') { s = sessionReducer(s, { type: 'HINT' }); continue; }
       const q = currentQuestion(s)!;
-      const ans = q.type === 'mcq'
-        ? { type: 'mcq' as const, selectedIndex: step === 'right' ? (q as MCQQuestion).correctIndex : (q as MCQQuestion).correctIndex === 0 ? 1 : 0 }
-        : q.type === 'fill_blank'
-          ? { type: 'fill_blank' as const, text: step === 'right' ? 'Laxman' : 'nope' }
-          : { type: 'match' as const, pairs: step === 'right' ? (q as MatchQuestion).pairs : [] };
+      let ans;
+      if (q.type === 'mcq') {
+        ans = { type: 'mcq' as const, selectedIndex: step === 'right' ? (q as MCQQuestion).correctIndex : (q as MCQQuestion).correctIndex === 0 ? 1 : 0 };
+      } else if (q.type === 'fill_blank') {
+        ans = { type: 'fill_blank' as const, text: step === 'right' ? 'Laxman' : 'nope' };
+      } else if (q.type === 'match') {
+        ans = { type: 'match' as const, pairs: step === 'right' ? (q as MatchQuestion).pairs : [] };
+      } else if (q.type === 'true_false') {
+        ans = { type: 'true_false' as const, selected: step === 'right' ? (q as TrueFalseQuestion).correctAnswer : !(q as TrueFalseQuestion).correctAnswer };
+      } else if (q.type === 'ordering') {
+        ans = { type: 'ordering' as const, order: step === 'right' ? (q as OrderingQuestion).correctOrder : [] };
+      } else {
+        ans = { type: 'flashcard' as const, selfReportedCorrect: step === 'right' };
+      }
       t += 500;
       s = sessionReducer(s, { type: 'ANSWER', answer: ans, now: t });
       t += 10;
@@ -182,11 +227,22 @@ describe('existing quiz content', () => {
       for (const q of lesson.questions) {
         expect(ids.has(q.id)).toBe(false);
         ids.add(q.id);
-        const right = q.type === 'mcq' ? { type: 'mcq' as const, selectedIndex: q.correctIndex }
-          : q.type === 'fill_blank' ? { type: 'fill_blank' as const, text: q.acceptedAnswers[0] }
-          : { type: 'match' as const, pairs: q.pairs };
+        let right;
+        if (q.type === 'mcq') {
+          right = { type: 'mcq' as const, selectedIndex: q.correctIndex };
+          expect(q.correctIndex).toBeLessThan(q.options.length);
+        } else if (q.type === 'fill_blank') {
+          right = { type: 'fill_blank' as const, text: q.acceptedAnswers[0] };
+        } else if (q.type === 'match') {
+          right = { type: 'match' as const, pairs: q.pairs };
+        } else if (q.type === 'true_false') {
+          right = { type: 'true_false' as const, selected: q.correctAnswer };
+        } else if (q.type === 'ordering') {
+          right = { type: 'ordering' as const, order: q.correctOrder };
+        } else {
+          right = { type: 'flashcard' as const, selfReportedCorrect: true };
+        }
         expect(evaluateAnswer(q, right).correct).toBe(true);
-        if (q.type === 'mcq') expect(q.correctIndex).toBeLessThan(q.options.length);
       }
     }
   });

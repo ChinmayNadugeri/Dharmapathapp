@@ -43,5 +43,38 @@ export function getHint(question: QuizQuestion, requestedLevel: number): Hint {
             : `"${first.left}" goes with "${first.right}".`),
       };
     }
+    case 'true_false': {
+      return {
+        level,
+        text:
+          authored ??
+          (level === 1
+            ? 'Read the statement carefully. Does every part of it hold true?'
+            : 'Think about what you learned in the lesson.'),
+      };
+    }
+    case 'ordering': {
+      const first = question.correctOrder[0];
+      return {
+        level,
+        text:
+          authored ??
+          (level === 1
+            ? 'Think about what comes first in the sequence.'
+            : first
+              ? `The first item is "${first}".`
+              : 'Try to recall the sequence from the lesson.'),
+      };
+    }
+    case 'flashcard': {
+      return {
+        level,
+        text:
+          authored ??
+          (level === 1
+            ? 'Try to recall the answer before flipping the card.'
+            : 'Think about the context where you learned this concept.'),
+      };
+    }
   }
 }

@@ -9,12 +9,16 @@ interface ContinueLessonCardProps {
   lesson: LessonData | null;
   progressPercent: number;
   onResume: () => void;
+  badgeLabel?: string;
+  recommendationReason?: string;
 }
 
 export const ContinueLessonCard: React.FC<ContinueLessonCardProps> = ({
   lesson,
   progressPercent,
   onResume,
+  badgeLabel = 'IN PROGRESS',
+  recommendationReason,
 }) => {
   // If no lesson is in progress, hide the card (graceful handling)
   if (!lesson) return null;
@@ -33,13 +37,15 @@ export const ContinueLessonCard: React.FC<ContinueLessonCardProps> = ({
         
         <View style={styles.badgeContainer}>
           <View style={styles.inProgressBadge}>
-            <Text style={styles.badgeText}>IN PROGRESS</Text>
+            <Text style={styles.badgeText}>{badgeLabel}</Text>
           </View>
         </View>
 
         <View style={styles.textContainer}>
           <Text style={styles.lessonTitle}>{lesson.title}</Text>
-          <Text style={styles.lessonSubtitle}>{lesson.subtitle}</Text>
+          <Text style={styles.lessonSubtitle}>
+            {recommendationReason || lesson.subtitle}
+          </Text>
         </View>
       </View>
 
@@ -110,7 +116,7 @@ const styles = StyleSheet.create({
   },
   lessonSubtitle: {
     fontFamily: 'Nunito_700Bold',
-    fontSize: 9,
+    fontSize: 10,
     color: HomeColors.goldPrimary,
     letterSpacing: 0.8,
   },

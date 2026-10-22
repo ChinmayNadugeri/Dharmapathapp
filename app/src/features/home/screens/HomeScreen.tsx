@@ -8,6 +8,12 @@ import { ReviseShlokaCard } from '../components/ReviseShlokaCard';
 import { RecentLearningsChecklist } from '../components/RecentLearningsChecklist';
 import { useUserProgress } from '../state/useUserProgress';
 import { useDailyContent } from '../state/useDailyContent';
+import { useLearnerState } from '@/features/learning/state/useLearnerState';
+import { recommendNext } from '@/features/learning/engine/recommend';
+import { dueItems } from '@/features/learning/engine/spaced';
+import { toLocalDateKey } from '@/features/learning/engine/date';
+import { LESSONS_DATA } from '../data/lessonsData';
+import { QUIZ_LESSONS } from '@/features/learning/data/quizData';
 import { HomeColors } from '../constants/homeTheme';
 
 interface HomeScreenProps {
@@ -19,7 +25,37 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { progress, completeLesson } = useUserProgress();
+  const { learnerState, getSessionSnapshot } = useLearnerState();
   const { featuredLesson, continueLesson, dailyShloka, recentLearnings } = useDailyContent(progress);
+
+  // Compute adaptive recommendation using pure engine
+  const todayKey = toLocalDateKey(new Date());
+  const dueReviews = dueItems(learnerState.reviews, todayKey);
+  const lessonOrder = LESSONS_DATA.map((l) => l.id);
+
+  const lessonConcepts: Record<string, string[]> = {};
+  for (const ql of QUIZ_LESSONS) {
+    const concepts = ql.questions.map((q) => q.conceptId || ql.id);
+    lessonConcepts[ql.id] = Array.from(new Set(concepts));
+  }
+
+  const recommendation = recommendNext({
+    lessonOrder,
+    completed: progress.completedLessons,
+    mastery: learnerState.mastery,
+    lessonConcepts,
+    dueReviews,
+  });
+
+  // Calculate actual progress for continue card if snapshot exists
+  const activeContinueSnapshot = continueLesson ? getSessionSnapshot(continueLesson.id) : undefined;
+  const continueProgress = activeContinueSnapshot && activeContinueSnapshot.queue.length > 0
+    ? Math.round((activeContinueSnapshot.position / activeContinueSnapshot.queue.length) * 100)
+    : 35; // Default if starting fresh
+
+  const recommendedLesson = recommendation.targetId
+    ? LESSONS_DATA.find((l) => l.id === recommendation.targetId)
+    : null;
 
   const handleBeginFeatured = () => {
     if (featuredLesson) {
@@ -33,10 +69,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   };
 
+  const handleOpenRecommended = () => {
+    if (recommendedLesson) {
+      navigation.navigate('/learning/lesson-runner', { lessonId: recommendedLesson.id });
+    }
+  };
+
   const handleReviseShloka = () => {
     if (dailyShloka) {
-      console.log(`STUB: Revising shloka: BG ${dailyShloka.chapter}.${dailyShloka.verse}`);
-      // Award minor revision reward
       completeLesson(`revise_${dailyShloka.id}_${new Date().toDateString()}`, 10);
     }
   };
@@ -55,6 +95,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       </View>
       <HeroLessonCard lesson={featuredLesson} onBeginLesson={handleBeginFeatured} />
 
+      {/* Adaptive Recommendation Card if recommendation differs from featured */}
+      {recommendedLesson && recommendation.kind !== 'done' && (
+        <>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionLine} />
+            <Text style={styles.sectionTitle}>ADAPTIVE RECOMMENDATION</Text>
+            <View style={styles.sectionLine} />
+          </View>
+          <ContinueLessonCard
+            lesson={recommendedLesson}
+            progressPercent={continueProgress}
+            onResume={handleOpenRecommended}
+            badgeLabel={recommendation.kind.toUpperCase()}
+            recommendationReason={recommendation.reason}
+          />
+        </>
+      )}
+
       {/* Section Header */}
       <View style={styles.sectionHeader}>
         <View style={styles.sectionLine} />
@@ -64,7 +122,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <PanchangGlanceCard onViewFullCalendar={handleViewFullCalendar} />
 
       {/* Section Header */}
-      {continueLesson && (
+      {continueLesson && !recommendedLesson && (
         <>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionLine} />
@@ -73,7 +131,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
           <ContinueLessonCard
             lesson={continueLesson}
-            progressPercent={65} // Placeholder progress state
+            progressPercent={continueProgress}
             onResume={handleResumeContinue}
           />
         </>
@@ -104,27 +162,25 @@ const styles = StyleSheet.create({
     backgroundColor: HomeColors.bgSandalwood,
   },
   content: {
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 24,
+    paddingHorizontal: 12,
+    paddingBottom: 40,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
     marginVertical: 14,
+    gap: 8,
   },
   sectionLine: {
     flex: 1,
-    height: 2,
-    backgroundColor: HomeColors.sectionLine,
+    height: 1.5,
+    backgroundColor: HomeColors.borderDark,
+    opacity: 0.3,
   },
   sectionTitle: {
     fontFamily: 'Baloo2_800ExtraBold',
     fontSize: 12,
+    color: HomeColors.crimsonDark,
     letterSpacing: 1.2,
-    color: HomeColors.saffronDark,
   },
 });
-export default HomeScreen;

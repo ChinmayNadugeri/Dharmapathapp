@@ -6,6 +6,24 @@ import { PATHS_DATA } from '@/features/home/data/pathsData';
 import { HardShadowCard } from '@/features/home/components/HardShadowCard';
 import { HomeColors } from '@/features/home/constants/homeTheme';
 
+// Map subItem IDs to corresponding quiz lesson IDs
+const SUBITEM_LESSON_MAP: Record<string, string> = {
+  itihasa_ramayana: 'lesson_ramayana_ayodhya_12',
+  itihasa_mahabharata: 'lesson_gita_sankhya_yoga',
+  itihasa_vishnu: 'lesson_ramayana_ayodhya_12',
+  leela_krishna: 'lesson_krishna_leela_kalia',
+  leela_shiva: 'lesson_shiva_neelkanth',
+  leela_devi: 'lesson_shiva_neelkanth',
+  leela_ganesha: 'lesson_krishna_leela_kalia',
+  tirtha_chardham: 'lesson_chardham_kedarnath',
+  tirtha_jyotirlinga: 'lesson_chardham_kedarnath',
+  tirtha_shakti: 'lesson_chardham_kedarnath',
+  utsava_diwali: 'lesson_diwali_lakshmi',
+  utsava_shivaratri: 'lesson_shiva_neelkanth',
+  utsava_navratri: 'lesson_diwali_lakshmi',
+  utsava_janmashtami: 'lesson_krishna_leela_kalia',
+};
+
 export const PathDetailScreen: React.FC = () => {
   const { pathId } = useLocalSearchParams<{ pathId: string }>();
   const router = useRouter();
@@ -24,7 +42,11 @@ export const PathDetailScreen: React.FC = () => {
   }
 
   const handleSubItemPress = (itemId: string) => {
-    console.log(`STUB: Exploring sub-item: ${itemId}`);
+    const targetLessonId = SUBITEM_LESSON_MAP[itemId] || 'lesson_ramayana_ayodhya_12';
+    router.push({
+      pathname: '/learning/lesson-runner',
+      params: { lessonId: targetLessonId },
+    });
   };
 
   const handleBackToAllPaths = () => {

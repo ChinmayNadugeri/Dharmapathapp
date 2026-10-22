@@ -2,19 +2,36 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { HomeColors } from '@/features/home/constants/homeTheme';
 import type { AnswerResult, MCQQuestion as MCQQuestionData } from '../types/quiz.types';
+import type { Answer } from '../engine/types';
 
 interface MCQQuestionProps {
   question: MCQQuestionData;
-  onAnswer: (result: AnswerResult) => void;
+  onAnswer?: (result: AnswerResult) => void;
+  onAnswerSubmit?: (answer: Answer) => void;
+  disabled?: boolean;
+  eliminatedOptions?: number[];
+  showInlineFeedback?: boolean;
 }
 
-export const MCQQuestion: React.FC<MCQQuestionProps> = ({ question, onAnswer }) => {
+export const MCQQuestion: React.FC<MCQQuestionProps> = ({
+  question,
+  onAnswer,
+  onAnswerSubmit,
+  disabled = false,
+  eliminatedOptions = [],
+  showInlineFeedback = true,
+}) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const handleSelect = (index: number) => {
-    if (selectedIndex !== null) return;
+    if (disabled || selectedIndex !== null) return;
     setSelectedIndex(index);
-    onAnswer({ correct: index === question.correctIndex, questionId: question.id });
+    if (onAnswerSubmit) {
+      onAnswerSubmit({ type: 'mcq', selectedIndex: index });
+    }
+    if (onAnswer) {
+      onAnswer({ correct: index === question.correctIndex, questionId: question.id });
+    }
   };
 
   return (
@@ -22,10 +39,13 @@ export const MCQQuestion: React.FC<MCQQuestionProps> = ({ question, onAnswer }) 
       <Text style={styles.question}>{question.question}</Text>
       <View style={styles.options}>
         {question.options.map((option, index) => {
+          const isEliminated = eliminatedOptions.includes(index);
           const selected = selectedIndex === index;
           const correct = index === question.correctIndex;
           const optionStyle = selectedIndex === null
-            ? styles.option
+            ? isEliminated
+              ? [styles.option, styles.optionEliminated]
+              : styles.option
             : correct
               ? styles.optionCorrect
               : selected
@@ -37,16 +57,23 @@ export const MCQQuestion: React.FC<MCQQuestionProps> = ({ question, onAnswer }) 
               key={option}
               style={optionStyle}
               onPress={() => handleSelect(index)}
-              disabled={selectedIndex !== null}
+              disabled={disabled || selectedIndex !== null || isEliminated}
               accessibilityRole="button"
               accessibilityLabel={option}
             >
-              <Text style={styles.optionText}>{option}</Text>
+              <Text
+                style={[
+                  styles.optionText,
+                  isEliminated && styles.optionTextEliminated,
+                ]}
+              >
+                {option}
+              </Text>
             </Pressable>
           );
         })}
       </View>
-      {selectedIndex !== null && (
+      {showInlineFeedback && selectedIndex !== null && (
         <View style={styles.feedback}>
           <Text style={styles.feedbackTitle}>
             {selectedIndex === question.correctIndex ? 'Correct' : 'Not quite'}
@@ -74,6 +101,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 14,
   },
+  optionEliminated: {
+    opacity: 0.35,
+    backgroundColor: '#E0E0E0',
+    borderColor: '#BDBDBD',
+  },
   optionCorrect: {
     backgroundColor: HomeColors.emeraldLight,
     borderColor: HomeColors.emeraldGreen,
@@ -92,6 +124,10 @@ const styles = StyleSheet.create({
     color: HomeColors.textMain,
     fontFamily: 'SpaceGrotesk_600SemiBold',
     fontSize: 15,
+  },
+  optionTextEliminated: {
+    textDecorationLine: 'line-through',
+    color: HomeColors.textMuted,
   },
   feedback: {
     backgroundColor: HomeColors.goldLight,

@@ -2,22 +2,37 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { HomeColors } from '@/features/home/constants/homeTheme';
 import type { AnswerResult, FillBlankQuestion as FillBlankQuestionData } from '../types/quiz.types';
+import type { Answer } from '../engine/types';
 
 interface FillBlankQuestionProps {
   question: FillBlankQuestionData;
-  onAnswer: (result: AnswerResult) => void;
+  onAnswer?: (result: AnswerResult) => void;
+  onAnswerSubmit?: (answer: Answer) => void;
+  disabled?: boolean;
+  showInlineFeedback?: boolean;
 }
 
-export const FillBlankQuestion: React.FC<FillBlankQuestionProps> = ({ question, onAnswer }) => {
+export const FillBlankQuestion: React.FC<FillBlankQuestionProps> = ({
+  question,
+  onAnswer,
+  onAnswerSubmit,
+  disabled = false,
+  showInlineFeedback = true,
+}) => {
   const [answer, setAnswer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const normalizedAnswers = question.acceptedAnswers.map((item) => item.trim().toLowerCase());
   const isCorrect = normalizedAnswers.includes(answer.trim().toLowerCase());
 
   const handleSubmit = () => {
-    if (submitted || !answer.trim()) return;
+    if (disabled || submitted || !answer.trim()) return;
     setSubmitted(true);
-    onAnswer({ correct: isCorrect, questionId: question.id });
+    if (onAnswerSubmit) {
+      onAnswerSubmit({ type: 'fill_blank', text: answer.trim() });
+    }
+    if (onAnswer) {
+      onAnswer({ correct: isCorrect, questionId: question.id });
+    }
   };
 
   return (
@@ -26,7 +41,7 @@ export const FillBlankQuestion: React.FC<FillBlankQuestionProps> = ({ question, 
       <TextInput
         value={answer}
         onChangeText={setAnswer}
-        editable={!submitted}
+        editable={!disabled && !submitted}
         placeholder="Type your answer"
         placeholderTextColor={HomeColors.textMuted}
         style={styles.input}
@@ -34,14 +49,14 @@ export const FillBlankQuestion: React.FC<FillBlankQuestionProps> = ({ question, 
         accessibilityLabel="Answer"
       />
       <Pressable
-        style={[styles.submit, (!answer.trim() || submitted) && styles.submitDisabled]}
+        style={[styles.submit, (!answer.trim() || disabled || submitted) && styles.submitDisabled]}
         onPress={handleSubmit}
-        disabled={!answer.trim() || submitted}
+        disabled={!answer.trim() || disabled || submitted}
         accessibilityRole="button"
       >
         <Text style={styles.submitText}>CHECK ANSWER</Text>
       </Pressable>
-      {submitted && (
+      {showInlineFeedback && submitted && (
         <View style={styles.feedback}>
           <Text style={styles.feedbackTitle}>{isCorrect ? 'Correct' : 'Not quite'}</Text>
           <Text style={styles.feedbackText}>{question.explanation}</Text>

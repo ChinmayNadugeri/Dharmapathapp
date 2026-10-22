@@ -1,4 +1,4 @@
-export type QuestionType = 'mcq' | 'fill_blank' | 'match';
+export type QuestionType = 'mcq' | 'fill_blank' | 'match' | 'true_false' | 'ordering' | 'flashcard';
 
 export interface AnswerResult {
   correct: boolean;
@@ -49,7 +49,51 @@ export interface MatchQuestion {
   hints?: string[];
 }
 
-export type QuizQuestion = MCQQuestion | FillBlankQuestion | MatchQuestion;
+export interface TrueFalseQuestion {
+  id: string;
+  type: 'true_false';
+  statement: string;
+  /** The correct answer: true means the statement is true. */
+  correctAnswer: boolean;
+  explanation: string;
+  conceptId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  hints?: string[];
+}
+
+export interface OrderingQuestion {
+  id: string;
+  type: 'ordering';
+  instruction: string;
+  /** Items in the CORRECT order. The UI will shuffle them for display. */
+  correctOrder: string[];
+  explanation: string;
+  conceptId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  hints?: string[];
+}
+
+export interface FlashcardQuestion {
+  id: string;
+  type: 'flashcard';
+  /** Front of the card — the prompt. */
+  front: string;
+  /** Back of the card — the answer/concept. */
+  back: string;
+  /** After the user self-reports, show this explanation. */
+  explanation: string;
+  conceptId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  hints?: string[];
+}
+
+export type QuizQuestion =
+  | MCQQuestion
+  | FillBlankQuestion
+  | MatchQuestion
+  | TrueFalseQuestion
+  | OrderingQuestion
+  | FlashcardQuestion;
 
 export interface QuizLesson {
   id: string;

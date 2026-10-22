@@ -59,5 +59,42 @@ export function evaluateAnswer(question: QuizQuestion, answer: Answer): Evaluati
         explanation: question.explanation,
       };
     }
+    case 'true_false': {
+      const a = answer as Extract<Answer, { type: 'true_false' }>;
+      const correct = a.selected === question.correctAnswer;
+      return {
+        questionId: question.id,
+        correct,
+        score: correct ? 1 : 0,
+        explanation: question.explanation,
+        expected: question.correctAnswer ? 'TRUE' : 'FALSE',
+      };
+    }
+    case 'ordering': {
+      const a = answer as Extract<Answer, { type: 'ordering' }>;
+      const correctOrder = question.correctOrder;
+      if (a.order.length !== correctOrder.length) {
+        return { questionId: question.id, correct: false, score: 0, explanation: question.explanation };
+      }
+      const correctPositions = a.order.filter((item, i) => item === correctOrder[i]).length;
+      const score = correctOrder.length === 0 ? 0 : correctPositions / correctOrder.length;
+      return {
+        questionId: question.id,
+        correct: score === 1,
+        score,
+        explanation: question.explanation,
+      };
+    }
+    case 'flashcard': {
+      const a = answer as Extract<Answer, { type: 'flashcard' }>;
+      // Flashcards are self-reported — we trust the learner's self-assessment.
+      return {
+        questionId: question.id,
+        correct: a.selfReportedCorrect,
+        score: a.selfReportedCorrect ? 1 : 0,
+        explanation: question.explanation,
+        expected: question.back,
+      };
+    }
   }
 }
