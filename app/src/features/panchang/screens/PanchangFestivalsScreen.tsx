@@ -106,10 +106,22 @@ export const PanchangFestivalsScreen: React.FC = () => {
     [openSheet]
   );
 
-  const handleLearnPress = useCallback((_festival: FestivalCardData) => {
-    // In production: navigate to festival lesson screen
-    // No alert() — intentional no-op until lesson screen is built
-  }, []);
+  const handleLearnPress = useCallback((festival: FestivalCardData) => {
+    closeSheet();
+    // Route festival to corresponding quiz lesson
+    const festivalLessonMap: Record<string, string> = {
+      guru_purnima: 'lesson_gita_sankhya_yoga',
+      raksha_bandhan: 'lesson_ramayana_ayodhya_12',
+      krishna_janmashtami: 'lesson_krishna_leela_kalia',
+      ganesh_chaturthi: 'lesson_shiva_neelkanth',
+      diwali: 'lesson_diwali_lakshmi',
+    };
+    const targetLessonId = festivalLessonMap[festival.source?.id || ''] || 'lesson_diwali_lakshmi';
+    router.push({
+      pathname: '/learning/lesson-runner',
+      params: { lessonId: targetLessonId },
+    });
+  }, [closeSheet, router]);
 
   const handleTabChange = useCallback((tab: PanchangTab) => {
     setActiveTab(tab);
