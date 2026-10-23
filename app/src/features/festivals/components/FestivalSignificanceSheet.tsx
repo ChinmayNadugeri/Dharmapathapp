@@ -5,7 +5,7 @@
  */
 
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Platform, Modal } from 'react-native';
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -36,10 +36,12 @@ export const FestivalSignificanceSheet: React.FC<FestivalSignificanceSheetProps>
   const snapPoints = useMemo(() => ['65%', '80%'], []);
 
   useEffect(() => {
-    if (isOpen) {
-      sheetRef.current?.expand();
-    } else {
-      sheetRef.current?.close();
+    if (Platform.OS !== 'web') {
+      if (isOpen) {
+        sheetRef.current?.expand();
+      } else {
+        sheetRef.current?.close();
+      }
     }
   }, [isOpen]);
 
@@ -66,6 +68,76 @@ export const FestivalSignificanceSheet: React.FC<FestivalSignificanceSheetProps>
   );
 
   if (!festival) return null;
+
+  // On Web, render a clean modal dialog to guarantee bottom sheet visibility without gesture root quirks
+  if (Platform.OS === 'web') {
+    return (
+      <Modal
+        visible={isOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={onClose}
+      >
+        <Pressable style={styles.webBackdrop} onPress={onClose}>
+          <Pressable style={styles.webModalContainer} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.content}>
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.headerText}>
+                  <Text style={styles.title}>{festival.shortName}</Text>
+                  <Text style={styles.subtitle}>{festival.sheetSubtitle}</Text>
+                </View>
+                <Pressable
+                  style={styles.closeBtn}
+                  onPress={onClose}
+                  accessibilityLabel="Close festival details"
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.closeBtnText}>✕</Text>
+                </Pressable>
+              </View>
+
+              {/* Significance section */}
+              <View style={styles.significanceSection}>
+                <Text style={styles.significanceTitle}>
+                  {PanchangStrings.sheetSignificanceTitle}
+                </Text>
+                <View style={styles.significanceBody}>
+                  <Text style={styles.significanceText}>{festival.significance}</Text>
+                </View>
+              </View>
+
+              {/* Lesson action button */}
+              {festival.hasLesson ? (
+                <Pressable
+                  onPress={() => onLearnPress(festival)}
+                  accessibilityLabel={`${PanchangStrings.sheetLearnButton} - ${festival.shortName}`}
+                  accessibilityRole="button"
+                >
+                  <LinearGradient
+                    colors={PanchangGradients.lessonAction}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={styles.lessonBtn}
+                  >
+                    <Text style={styles.lessonBtnText}>
+                      {PanchangStrings.sheetLearnButton}
+                    </Text>
+                  </LinearGradient>
+                </Pressable>
+              ) : (
+                <View style={[styles.lessonBtn, styles.lessonBtnDisabled]}>
+                  <Text style={styles.lessonBtnDisabledText}>
+                    {PanchangStrings.lessonComingSoon}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    );
+  }
 
   return (
     <BottomSheet
@@ -251,5 +323,22 @@ const styles = StyleSheet.create({
     color: PanchangColors.textDark,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  webBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  webModalContainer: {
+    width: '100%',
+    maxWidth: 600,
+    backgroundColor: PanchangColors.appAmberLight,
+    borderTopLeftRadius: PanchangSpacing.sheetBorderRadius,
+    borderTopRightRadius: PanchangSpacing.sheetBorderRadius,
+    borderTopWidth: 3,
+    borderTopColor: PanchangColors.goldAccent,
+    paddingTop: 16,
+    paddingBottom: 24,
   },
 });

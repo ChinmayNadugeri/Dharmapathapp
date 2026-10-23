@@ -1,4 +1,5 @@
 import type { QuizLesson } from '../types/quiz.types';
+import { assertValidLessons } from '../engine/validate';
 
 export const QUIZ_LESSONS: QuizLesson[] = [
   {
@@ -480,6 +481,11 @@ export const QUIZ_LESSONS: QuizLesson[] = [
     ],
   },
 ];
+
+// Validate all quiz content at module load time.
+// In production this catches data errors immediately on startup.
+// In dev / CI this surfaces schema violations before they reach users.
+assertValidLessons(QUIZ_LESSONS);
 
 export function getQuizLesson(lessonId: string): QuizLesson | undefined {
   return QUIZ_LESSONS.find((lesson) => lesson.id === lessonId);

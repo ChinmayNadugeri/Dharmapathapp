@@ -5,6 +5,7 @@ import { HeroLessonCard } from '../components/HeroLessonCard';
 import { PanchangGlanceCard } from '../components/PanchangGlanceCard';
 import { ContinueLessonCard } from '../components/ContinueLessonCard';
 import { ReviseShlokaCard } from '../components/ReviseShlokaCard';
+import { ShlokaRecitationModal } from '../components/ShlokaRecitationModal';
 import { RecentLearningsChecklist } from '../components/RecentLearningsChecklist';
 import { useUserProgress } from '../state/useUserProgress';
 import { useDailyContent } from '../state/useDailyContent';
@@ -75,9 +76,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   };
 
+  const [recitationModalVisible, setRecitationModalVisible] = React.useState(false);
+
   const handleReviseShloka = () => {
     if (dailyShloka) {
-      completeLesson(`revise_${dailyShloka.id}_${new Date().toDateString()}`, 10);
+      setRecitationModalVisible(true);
+    }
+  };
+
+  const handleRecitationComplete = (earnedXp: number) => {
+    if (dailyShloka) {
+      completeLesson(`revise_${dailyShloka.id}_${new Date().toDateString()}`, earnedXp);
     }
   };
 
@@ -152,6 +161,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <View style={styles.sectionLine} />
       </View>
       <RecentLearningsChecklist items={recentLearnings} />
+
+      {/* Interactive Recitation Modal */}
+      <ShlokaRecitationModal
+        visible={recitationModalVisible}
+        shloka={dailyShloka}
+        onClose={() => setRecitationModalVisible(false)}
+        onComplete={handleRecitationComplete}
+      />
     </ScrollView>
   );
 };

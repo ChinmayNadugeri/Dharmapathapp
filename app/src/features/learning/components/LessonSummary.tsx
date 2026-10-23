@@ -4,6 +4,7 @@ import { HomeColors } from '@/features/home/constants/homeTheme';
 import type { QuizLesson } from '../types/quiz.types';
 import type { SessionSummary } from '../engine/session';
 import type { AttemptRecord } from '../engine/types';
+import { SoundFeedback } from '../services/soundFeedback';
 
 interface LessonSummaryProps {
   lesson: QuizLesson;
@@ -27,6 +28,10 @@ export const LessonSummary: React.FC<LessonSummaryProps> = ({
   onRetryLesson,
 }) => {
   const accuracyPercent = Math.round(summary.accuracy * 100);
+
+  React.useEffect(() => {
+    SoundFeedback.playLevelUp();
+  }, []);
 
   return (
     <View style={styles.container}>

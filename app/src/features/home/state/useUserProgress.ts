@@ -108,9 +108,12 @@ export function useUserProgress(): UseUserProgressReturn {
       const earned = new Set(current.badges);
 
       if (current.completedLessons.length >= 1) earned.add('first_lesson');
+      if (current.dayStreak >= 3) earned.add('streak_3');
       if (current.dayStreak >= 7) earned.add('streak_7');
       if (current.punyaPoints >= 100) earned.add('punya_100');
       if (current.completedLessons.length >= 5) earned.add('scholar');
+      if (current.completedLessons.some((id) => id.includes('kedarnath'))) earned.add('char_dham_pilgrim');
+      if (current.completedLessons.some((id) => id.startsWith('revise_'))) earned.add('recitation_initiate');
 
       return { ...current, badges: Array.from(earned) };
     },

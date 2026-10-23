@@ -7,3 +7,4 @@ export * from './mastery';
 export * from './spaced';
 export * from './adaptive';
 export * from './recommend';
+export * from './validate';

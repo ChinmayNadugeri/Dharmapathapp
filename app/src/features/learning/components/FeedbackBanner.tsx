@@ -1,7 +1,8 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import { HomeColors } from '@/features/home/constants/homeTheme';
 import type { Evaluation } from '../engine/types';
+import { SoundFeedback } from '../services/soundFeedback';
 
 interface FeedbackBannerProps {
   evaluation: Evaluation;
@@ -11,8 +12,43 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ evaluation }) =>
   const isCorrect = evaluation.correct;
   const isPartial = !isCorrect && evaluation.score > 0;
 
+  // Spring slide-up animation
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+
+  useEffect(() => {
+    // Play appropriate sound
+    if (isCorrect) {
+      SoundFeedback.playCorrect();
+    } else {
+      SoundFeedback.playIncorrect();
+    }
+
+    // Trigger smooth bounce entrance
+    Animated.parallel([
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        friction: 6,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 5,
+        tension: 90,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [isCorrect]);
+
   return (
-    <View
+    <Animated.View
       style={[
         styles.container,
         isCorrect
@@ -20,6 +56,10 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ evaluation }) =>
           : isPartial
           ? styles.partialContainer
           : styles.incorrectContainer,
+        {
+          opacity: opacityAnim,
+          transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
+        },
       ]}
     >
       <View style={styles.headerRow}>
@@ -65,7 +105,7 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ evaluation }) =>
       {evaluation.explanation ? (
         <Text style={styles.explanationText}>{evaluation.explanation}</Text>
       ) : null}
-    </View>
+    </Animated.View>
   );
 };
 
