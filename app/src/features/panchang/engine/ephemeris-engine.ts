@@ -95,10 +95,6 @@ function rad(deg: number): number {
   return (deg * Math.PI) / 180.0;
 }
 
-function deg(radVal: number): number {
-  return (radVal * 180.0) / Math.PI;
-}
-
 function normalizeDeg(degrees: number): number {
   let mod = degrees % 360;
   if (mod < 0) mod += 360;

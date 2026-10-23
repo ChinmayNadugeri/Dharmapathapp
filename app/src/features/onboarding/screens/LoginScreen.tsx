@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   Pressable,
   Image,
   Platform,
-  Dimensions,
   ActivityIndicator,
 } from 'react-native';
 import Animated, {
@@ -16,7 +15,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Defs, Pattern, Circle } from 'react-native-svg';
 import { useFonts } from 'expo-font';

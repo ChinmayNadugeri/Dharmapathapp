@@ -1,0 +1,148 @@
+DharmaPath Interactive Learning System
+Progress Report
+
+Developer: Shridhar
+Feature branch: feature/interactive-learning-runner
+Date: 2026-10-05
+
+==================================================
+COMPLETED WORK
+==================================================
+
+1. Quiz type system
+
+Created:
+app/src/features/learning/types/quiz.types.ts
+
+Added typed models for:
+- Multiple-choice questions
+- Fill-in-the-blank questions
+- Match-the-following questions
+- Quiz lessons
+- Answer results
+
+Shared answer result format:
+{ correct: boolean; questionId: string }
+
+2. Quiz content
+
+Created:
+app/src/features/learning/data/quizData.ts
+
+Added two complete lessons:
+- Rama's Vow & the Forest Journey
+- Sankhya Yoga: Action Without Attachment
+
+Each lesson includes:
+- One MCQ question
+- One fill-in-the-blank question
+- One match-the-following question
+- Explanation text
+- Lesson points
+
+3. Question components
+
+Created:
+- app/src/features/learning/components/MCQQuestion.tsx
+- app/src/features/learning/components/FillBlankQuestion.tsx
+- app/src/features/learning/components/MatchQuestion.tsx
+- app/src/features/learning/components/QuizProgressBar.tsx
+
+Implemented behavior:
+- Tappable MCQ options
+- Correct and incorrect feedback
+- Fill-in-the-blank answer checking
+- Case-insensitive accepted answers
+- Match-the-following tap interaction
+- Explanations after answering
+- Disabled repeated submissions
+- Question progress display
+
+4. Lesson runner
+
+Created:
+app/src/features/learning/screens/LessonRunnerScreen.tsx
+
+Implemented:
+- Lesson loading by lesson ID
+- One-question-at-a-time flow
+- Answer accuracy tracking
+- Next question navigation
+- Lesson completion state
+- Score summary
+- Points-earned summary
+- Invalid lesson fallback
+- Back navigation
+
+5. Expo Router route
+
+Created:
+app/src/app/learning/lesson-runner.tsx
+
+The route loads the LessonRunnerScreen and accepts a lessonId parameter.
+
+6. Home screen integration
+
+Updated:
+app/src/features/home/screens/HomeScreen.tsx
+
+Changed behavior:
+- Begin Daily Lesson now opens the interactive lesson runner
+- Resume Lesson now opens the interactive lesson runner
+- Lessons no longer award points immediately when the card is tapped
+- completeLesson() is called only after the final quiz question
+- Existing Revise Shloka behavior remains unchanged
+
+New flow:
+Home
+  -> Begin Lesson / Resume Lesson
+  -> Interactive Quiz
+  -> Results
+  -> completeLesson()
+  -> Points, streak, and badges update
+
+==================================================
+VERIFICATION
+==================================================
+
+Command run:
+
+npx tsc --noEmit
+
+Result:
+Passed with no TypeScript errors.
+
+Manual testing completed:
+- Quiz opens from the Home screen
+- First lesson questions are playable
+- MCQ interaction works
+- Fill-in-the-blank interaction works
+- Match-the-following interaction works
+- Results screen appears after completion
+- Points are awarded after finishing the lesson
+
+==================================================
+CURRENT LIMITATIONS
+==================================================
+
+- Two lessons currently contain quiz questions.
+- Mid-lesson progress is not persisted.
+- Leaving a lesson restarts it from the beginning.
+- Continue Lesson still uses the existing placeholder progress percentage.
+- More lesson content should be added before the final feature PR.
+- Manual testing should be completed for both lessons and persistence after force-close.
+
+==================================================
+NEXT STEPS
+==================================================
+
+1. Run the full manual test pass on both lessons.
+2. Confirm points, streak, and badge persistence after force-closing the app.
+3. Review UI and content with the team lead.
+4. Add more complete lessons if required for the sprint definition of done.
+5. Run npx tsc --noEmit again before commit.
+6. Commit the feature branch.
+7. Push feature/interactive-learning-runner.
+8. Open a pull request targeting main.
+
+The work is currently on the feature branch only. It has not been committed or pushed yet.

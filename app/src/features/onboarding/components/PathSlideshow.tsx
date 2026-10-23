@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from 'react-native-reanimated';
 import { Colors } from '@/shared/constants/theme';
 
 const pathItihasa = require('@/assets/images/path_itihasa.jpg');

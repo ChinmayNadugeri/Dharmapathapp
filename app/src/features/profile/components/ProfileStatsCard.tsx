@@ -5,10 +5,19 @@ import { HomeColors } from '@/features/home/constants/homeTheme';
 
 interface ProfileStatsCardProps {
   punyaPoints: number;
+  experiencePoints: number;
+  level: number;
+  levelProgressPercent: number;
   dayStreak: number;
 }
 
-export const ProfileStatsCard: React.FC<ProfileStatsCardProps> = ({ punyaPoints, dayStreak }) => {
+export const ProfileStatsCard: React.FC<ProfileStatsCardProps> = ({
+  punyaPoints,
+  experiencePoints,
+  level,
+  levelProgressPercent,
+  dayStreak,
+}) => {
   return (
     <HardShadowCard style={styles.outerWrapper} cardStyle={styles.card} borderRadius={22}>
       <View style={styles.header}>
@@ -17,7 +26,7 @@ export const ProfileStatsCard: React.FC<ProfileStatsCardProps> = ({ punyaPoints,
         </View>
         <View>
           <Text style={styles.metaLabel}>USER PROFILE</Text>
-          <Text style={styles.username}>KEDAR07</Text>
+          <Text style={styles.username}>LEVEL {level}</Text>
         </View>
       </View>
 
@@ -27,10 +36,18 @@ export const ProfileStatsCard: React.FC<ProfileStatsCardProps> = ({ punyaPoints,
           <Text style={styles.statLabel}>PUNYA POINTS</Text>
         </View>
         <View style={[styles.statCell, styles.dividerLeft]}>
+          <Text style={styles.statNum}>{experiencePoints}</Text>
+          <Text style={styles.statLabel}>XP</Text>
+        </View>
+        <View style={[styles.statCell, styles.dividerLeft]}>
           <Text style={styles.statNum}>{dayStreak}</Text>
           <Text style={styles.statLabel}>DAY STREAK</Text>
         </View>
       </View>
+      <View style={styles.levelProgressTrack}>
+        <View style={[styles.levelProgressFill, { width: `${levelProgressPercent}%` }]} />
+      </View>
+      <Text style={styles.levelProgressLabel}>{levelProgressPercent}% TO NEXT LEVEL</Text>
     </HardShadowCard>
   );
 };
@@ -100,6 +117,24 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito_700Bold',
     fontSize: 9,
     color: '#AAAAAA',
+  },
+  levelProgressTrack: {
+    backgroundColor: '#332E2B',
+    borderRadius: 6,
+    height: 8,
+    marginTop: 12,
+    overflow: 'hidden',
+  },
+  levelProgressFill: {
+    backgroundColor: HomeColors.goldPrimary,
+    height: '100%',
+  },
+  levelProgressLabel: {
+    color: '#AAAAAA',
+    fontFamily: 'Nunito_700Bold',
+    fontSize: 9,
+    marginTop: 5,
+    textAlign: 'right',
   },
 });
 export default ProfileStatsCard;

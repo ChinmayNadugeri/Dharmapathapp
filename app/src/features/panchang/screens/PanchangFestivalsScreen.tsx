@@ -16,14 +16,6 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
-import {
-  Baloo2_500Medium,
-  Baloo2_600SemiBold,
-  Baloo2_700Bold,
-  Baloo2_800ExtraBold,
-} from '@expo-google-fonts/baloo-2';
-
 import { PanchangColors } from '@/shared/constants/panchang-theme';
 import { PanchangStrings } from '@/shared/constants/panchang-strings';
 import { ScreenHeader } from '@/shared/components/ScreenHeader';

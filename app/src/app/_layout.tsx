@@ -22,11 +22,9 @@ import {
 } from '@expo-google-fonts/baloo-2';
 
 import { AnimatedSplashOverlay } from '@/shared/components/AnimatedIcon';
-import AppTabs from '@/shared/components/AppTabs';
 import { PreferencesProvider, usePreferences } from '@/features/onboarding/context/PreferencesContext';
 import { OnboardingScreen } from '@/features/onboarding/screens/OnboardingScreen';
 import { PreferencesScreen } from '@/features/onboarding/screens/PreferencesScreen';
-import { PanchangFestivalsScreen } from '@/features/panchang/screens/PanchangFestivalsScreen';
 import { Colors } from '@/shared/constants/theme';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';

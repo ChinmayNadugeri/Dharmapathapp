@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
-  Dimensions,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -21,8 +20,6 @@ import { SymbolView } from 'expo-symbols';
 import { LoginScreen } from './LoginScreen';
 import { Colors } from '@/shared/constants/theme';
 import { DotIndicators } from '../components/DotIndicators';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export interface OnboardingSlideData {
   id: string;

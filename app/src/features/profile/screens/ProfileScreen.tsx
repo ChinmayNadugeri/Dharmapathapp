@@ -9,6 +9,7 @@ import { ProfileActionButton } from '../components/ProfileActionButton';
 import { useUserProgress } from '@/features/home/state/useUserProgress';
 import { useDailyContent } from '@/features/home/state/useDailyContent';
 import { HomeColors } from '@/features/home/constants/homeTheme';
+import { getLevelForXp, getLevelProgressPercent } from '@/features/home/engine/xp-engine';
 import { usePreferences } from '@/features/onboarding/context/PreferencesContext';
 
 export const ProfileScreen: React.FC = () => {
@@ -38,7 +39,13 @@ export const ProfileScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingTop: insets.top + 10 }]}>
-      <ProfileStatsCard punyaPoints={progress.punyaPoints} dayStreak={progress.dayStreak} />
+      <ProfileStatsCard
+        punyaPoints={progress.punyaPoints}
+        experiencePoints={progress.experiencePoints}
+        level={getLevelForXp(progress.experiencePoints)}
+        levelProgressPercent={getLevelProgressPercent(progress.experiencePoints)}
+        dayStreak={progress.dayStreak}
+      />
 
       {/* DHARMA LEAGUE SECTION */}
       <View style={styles.sectionHeader}>

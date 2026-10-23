@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   Pressable,
   TextInput,
   Image,
-  FlatList,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
@@ -20,7 +19,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { G, Path, Circle } from 'react-native-svg';
 import { useFonts } from 'expo-font';
@@ -35,9 +34,7 @@ import {
   JetBrainsMono_500Medium,
   JetBrainsMono_700Bold,
 } from '@expo-google-fonts/jetbrains-mono';
-import { SymbolView } from 'expo-symbols';
 import { usePreferences } from '@/features/onboarding/context/PreferencesContext';
-import { Colors } from '@/shared/constants/theme';
 import { ChoiceCard } from '../components/ChoiceCard';
 
 const mascot1 = require('@/assets/images/mascot.png');
@@ -81,69 +78,6 @@ const SLIDES = [
     image: pathTirtha,
   },
 ];
-
-interface ChoiceItem {
-  id: string;
-  indexStr: string;
-  label: string;
-  subtitle?: string;
-  badge?: string;
-}
-
-const AGE_OPTIONS: ChoiceItem[] = [
-  { id: '12-18', indexStr: '01', label: '12-18', subtitle: 'Category: Youth / Junior' },
-  { id: '18-24', indexStr: '02', label: '18-24', subtitle: 'Category: Young Adult' },
-  { id: '24+', indexStr: '03', label: '24+', subtitle: 'Category: General Cohort' },
-];
-
-const REFERRAL_OPTIONS: ChoiceItem[] = [
-  { id: 'Friends / Family', indexStr: '01', label: 'Friends / Family', subtitle: 'Word of Mouth Referral' },
-  { id: 'Instagram / YouTube', indexStr: '02', label: 'Instagram / YouTube', subtitle: 'Social Media Channels' },
-  { id: 'Web Search', indexStr: '03', label: 'Web Search', subtitle: 'Organic Search Results' },
-  { id: 'App Store / Play Store', indexStr: '04', label: 'App Store / Play Store', subtitle: 'Direct Store Discovery' },
-];
-
-const KNOWLEDGE_OPTIONS: ChoiceItem[] = [
-  { id: 'Beginner / Curious', indexStr: '01', label: 'Beginner / Curious', subtitle: 'New to Epics & Vedic Wisdom', badge: 'LEVEL 1' },
-  { id: 'Intermediate', indexStr: '02', label: 'Intermediate', subtitle: 'Familiar with Ramayana & Gita', badge: 'LEVEL 2' },
-  { id: 'Advanced', indexStr: '03', label: 'Advanced', subtitle: 'Deep Explorer of Texts', badge: 'LEVEL 3' },
-  { id: 'Scholar / Practitioner', indexStr: '04', label: 'Scholar / Practitioner', subtitle: 'Academic or Spiritual Guide', badge: 'PRO' },
-];
-
-const GOAL_OPTIONS: ChoiceItem[] = [
-  { id: 'Stories & Epics', indexStr: '01', label: 'Stories & Epics', subtitle: 'Read comic-style epics' },
-  { id: 'Daily Practice', indexStr: '02', label: 'Daily Practice', subtitle: 'Mantras, Panchang & Rituals' },
-  { id: 'Cultural Connection', indexStr: '03', label: 'Cultural Connection', subtitle: 'Festivals & Heritage' },
-  { id: 'Academic Study', indexStr: '04', label: 'Academic Study', subtitle: 'Scriptures & Philosophy' },
-  { id: 'Family & Heritage', indexStr: '05', label: 'Family & Heritage', subtitle: 'Pass down wisdom' },
-];
-
-function MascotFrame({ imageSource, zoom = false }: { imageSource: any; zoom?: boolean }) {
-  const translateY = useSharedValue(0);
-
-  useEffect(() => {
-    translateY.value = withRepeat(
-      withTiming(-4, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-  }, [translateY]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  return (
-    <View style={styles.mascotFrame}>
-      <Text style={styles.mascotTag}>DHARMI™</Text>
-      <Animated.Image
-        source={imageSource}
-        style={[styles.mascotImage, animatedStyle, zoom && { width: 140, height: 140 }]}
-      />
-      <Text style={styles.mascotTagSub}>BUDDY</Text>
-    </View>
-  );
-}
 
 interface PathSlideProps {
   title: string;
@@ -288,7 +222,6 @@ export function PreferencesScreen() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
-  const insets = useSafeAreaInsets();
 
   // Load Google Fonts
   const [fontsLoaded] = useFonts({
